@@ -1,0 +1,31 @@
+{
+    "name": "knik/g-rcon",
+    "description": "RCON Library for game servers management",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nikita Kuznetsov",
+            "email": "nikita.hldm@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Knik\\GRcon\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Knik\\GRcon\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=7.2",
+        "ext-openssl": "*",
+        "ext-sockets": "*",
+        "mockery/mockery": "^1.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5"
+    }
+}
