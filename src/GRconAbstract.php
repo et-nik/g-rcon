@@ -50,6 +50,11 @@ abstract class GRconAbstract
             throw new PlayersManageNotSupportedExceptions;
         }
 
+        if (! $this->isConnected) {
+            $this->adapter->connect();
+            $this->isConnected = true;
+        }
+
         return $this->adapter->getPlayers();
     }
 

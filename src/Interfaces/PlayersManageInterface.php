@@ -4,11 +4,26 @@ namespace Knik\GRcon\Interfaces;
 
 interface PlayersManageInterface
 {
+    /**
+     * Get Players list
+     * @return array
+     */
     public function getPlayers(): array;
 
-    public function kick(string $playerName, string $reason = '');
+    /**
+     * Kick player by ID (game server internal unique id, steamid, name, etc.)
+     *
+     * @param $playerId
+     * @param string $reason
+     * @return mixed
+     */
+    public function kick($playerId, string $reason = '');
 
-    public function ban(string $playerName, string $reason = '');
-
-    public function changeName(string $oldName, string $newName);
+    /**
+     * Ban Player by ID (game server internal unique id, steamid, name, etc.)
+     * @param $playerId
+     * @param string $reason
+     * @return mixed
+     */
+    public function ban($playerId, string $reason = '');
 }

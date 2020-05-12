@@ -5,9 +5,10 @@ namespace Knik\GRcon\Protocols;
 use Knik\GRcon\Exceptions\ConnectionException;
 use Knik\GRcon\Exceptions\GRconException;
 use Knik\GRcon\Interfaces\ConfigurableAdapterInterface;
+use Knik\GRcon\Interfaces\PlayersManageInterface;
 use Knik\GRcon\Interfaces\ProtocolAdapterInterface;
 
-class GoldSourceAdapter implements ProtocolAdapterInterface, ConfigurableAdapterInterface
+class GoldSourceAdapter implements ProtocolAdapterInterface, PlayersManageInterface, ConfigurableAdapterInterface
 {
     /**
      * @var string
@@ -131,7 +132,7 @@ class GoldSourceAdapter implements ProtocolAdapterInterface, ConfigurableAdapter
             $firstCommand = false;
         }
 
-        return $result;
+        return mb_convert_encoding($result, 'UTF-8', 'UTF-8');
     }
 
     /**
@@ -168,5 +169,66 @@ class GoldSourceAdapter implements ProtocolAdapterInterface, ConfigurableAdapter
         $buffer .= fread($this->connection, $status["unread_bytes"]);
 
         return trim(substr($buffer, 5));
+    }
+
+    /**
+     * @return array
+     */
+    public function getPlayers(): array
+    {
+        $status = $this->execute('status');
+
+        if (strlen($status) <= 0) {
+            return [];
+        }
+
+        $count = preg_match_all('/^\#\s?\d*\s*\"(?<name>.*?)\"\s*(?<userid>\d*)\s*(?<uniqueid>[a-zA-Z0-9\_\:]*)\s*(?<frag>hltv\:\d*\/\d* delay\:\d*|[a-z\-\:0-9]*)\s*(?<time>[0-9\:]*)\s*(?<ping>\s*|\d*)\s*(?<loss>\s*|\d*)\s*(?<addr>[0-9\.]*\:\d*|0)$/mi',
+            $status,
+            $matches
+        );
+
+        if ($count <= 0) {
+            return [];
+        }
+
+        $players = [];
+        for ($i = 0; $i < $count; $i++) {
+            if ($matches['addr'][$i] != 0) {
+                $ip = explode(':', $matches['addr'][$i])[0];
+            } else {
+                $ip = '127.0.0.1';
+            }
+
+            $players[] = [
+                'id'        => $matches['userid'][$i],
+                'name'      => $matches['name'][$i],
+                'steamid'   => $matches['uniqueid'][$i],
+                'score'     => (int)$matches['frag'][$i],
+                'ping'      => (int)$matches['ping'][$i],
+                'loss'      => (int)$matches['loss'][$i],
+                'ip'        => $ip,
+                'time'      => $matches['time'][$i],
+            ];
+        }
+
+        return $players;
+    }
+
+    /**
+     * @param mixed $playerId
+     * @param string $reason
+     */
+    public function kick($playerId, string $reason = '')
+    {
+        $this->execute('kick ', $playerId);
+    }
+
+    /**
+     * @param mixed $playerId
+     * @param string $reason
+     */
+    public function ban($playerId, string $reason = '')
+    {
+        $this->execute('ban ', $playerId);
     }
 }
