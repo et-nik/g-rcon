@@ -36,7 +36,7 @@ class EasyGRcon extends GRconAbstract
     public function __construct(?string $protocolName, array $options = null)
     {
         if (!empty($protocolName)) {
-            $this->setProtocol($protocolName, $options)
+            $this->setProtocol($protocolName, $options);
         }
     }
 
