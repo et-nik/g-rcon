@@ -10,7 +10,7 @@ class GRcon extends GRconAbstract
      * RconClient constructor.
      * @param ProtocolAdapterInterface $adapter
      */
-    public function __construct(ProtocolAdapterInterface $adapter)
+    public function __construct(?ProtocolAdapterInterface $adapter)
     {
         $this->adapter = $adapter;
     }

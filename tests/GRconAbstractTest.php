@@ -103,9 +103,7 @@ class PlayersAdapter extends Adapter implements PlayersManageInterface
         return [];
     }
 
-    public function kick(string $playerName, string $reason = '') {}
+    public function kick($playerId, string $reason = '') {}
 
-    public function ban(string $playerName, string $reason = '') {}
-
-    public function changeName(string $oldName, string $newName) {}
+    public function ban($playerId, string $reason = '') {}
 }
