@@ -33,7 +33,7 @@ class EasyGRcon extends GRconAbstract
      *
      * @throws ProtocolNotSupportedException
      */
-    public function __construct(?string $protocolName, array $options = null)
+    public function __construct(?string $protocolName = null, array $options = null)
     {
         if (!empty($protocolName)) {
             $this->setProtocol($protocolName, $options);

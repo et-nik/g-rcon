@@ -220,15 +220,16 @@ class GoldSourceAdapter implements ProtocolAdapterInterface, PlayersManageInterf
      */
     public function kick($playerId, string $reason = '')
     {
-        $this->execute('kick ', $playerId);
+        $this->execute("kick #{$playerId}");
     }
 
     /**
      * @param mixed $playerId
      * @param string $reason
+     * @param int $time
      */
-    public function ban($playerId, string $reason = '')
+    public function ban($playerId, string $reason = '', int $time = 0)
     {
-        $this->execute('ban ', $playerId);
+        $this->execute("banid {$time} #{$playerId}");
     }
 }
