@@ -58,6 +58,47 @@ abstract class GRconAbstract
         return $this->adapter->getPlayers();
     }
 
+    /**
+     * @param $playerId
+     * @param string $reason
+     * @return mixed
+     * @throws PlayersManageNotSupportedExceptions
+     */
+    public function kick($playerId, string $reason = '')
+    {
+        if (!$this->isPlayersManageSupported()) {
+            throw new PlayersManageNotSupportedExceptions;
+        }
+
+        if (! $this->isConnected) {
+            $this->adapter->connect();
+            $this->isConnected = true;
+        }
+
+        return $this->adapter->kick($playerId, $reason);
+    }
+
+    /**
+     * @param $playerId
+     * @param string $reason
+     * @param int $time
+     * @return mixed
+     * @throws PlayersManageNotSupportedExceptions
+     */
+    public function ban($playerId, string $reason = '', int $time = 0)
+    {
+        if (!$this->isPlayersManageSupported()) {
+            throw new PlayersManageNotSupportedExceptions;
+        }
+
+        if (! $this->isConnected) {
+            $this->adapter->connect();
+            $this->isConnected = true;
+        }
+
+        return $this->adapter->ban($playerId, $reason, $time);
+    }
+
     public function __destruct()
     {
         if ($this->isConnected) {
