@@ -4,6 +4,7 @@ namespace Knik\GRcon\Protocols;
 
 use Knik\GRcon\Exceptions\ConnectionException;
 use Knik\GRcon\Interfaces\ConfigurableAdapterInterface;
+use Knik\GRcon\Interfaces\PlayersManageInterface;
 use Knik\GRcon\Interfaces\ProtocolAdapterInterface;
 
 class SourceAdapter implements ProtocolAdapterInterface, ConfigurableAdapterInterface
@@ -37,16 +38,39 @@ class SourceAdapter implements ProtocolAdapterInterface, ConfigurableAdapterInte
     private $password;
 
     /**
+     * @var int
+     */
+    protected $timeout = 5;
+
+    protected $configurable = [
+        'host',
+        'port',
+        'password',
+        'timeout',
+    ];
+
+    /**
      * SourceAdapter constructor.
      * @param array $config
      */
     public function __construct(array $config)
     {
-        $this->config = $config;
+        $this->setConfig($config);
+    }
 
-        $this->host         = $config['host'];
-        $this->port         = $config['port'];
-        $this->password     = $config['password'];
+    public function setConfig(array $config)
+    {
+        foreach ($this->configurable as $optionName) {
+            if ( ! isset($config[$optionName])) {
+                continue;
+            }
+
+            if (property_exists(self::class, $optionName)) {
+                $this->{$optionName} = $config[$optionName];
+            }
+        }
+
+        return $this;
     }
 
     public function connect(): void
@@ -55,7 +79,7 @@ class SourceAdapter implements ProtocolAdapterInterface, ConfigurableAdapterInte
             throw new ConnectionException($errMsg);
         });
 
-        $this->connection = fsockopen($this->host, $this->port, $errno, $errstr, 5);
+        $this->connection = fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
 
         restore_error_handler();
 
@@ -89,7 +113,6 @@ class SourceAdapter implements ProtocolAdapterInterface, ConfigurableAdapterInte
             return $response[0]['S1'];
         }
     }
-
 
     private function auth()
     {
@@ -131,6 +154,7 @@ class SourceAdapter implements ProtocolAdapterInterface, ConfigurableAdapterInte
         // Send packet
         @fwrite($this->connection, $data, strlen($data));
         sleep(1);
+
         // In case we want it later we'll return the packet id
         return $id;
     }
