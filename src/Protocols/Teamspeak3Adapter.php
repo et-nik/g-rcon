@@ -88,11 +88,13 @@ class Teamspeak3Adapter implements
 
     public function disconnect(): void
     {
-        // TODO: Implement disconnect() method.
+        $this->connection->disconnect();
     }
 
     public function execute($command): string
     {
+        $this->execAndParse('use sid=1');
+
         $result = $this->execAndParse($command);
 
         if ($result['errorId'] != self::STATUS_OK) {
@@ -179,7 +181,7 @@ class Teamspeak3Adapter implements
     {
         $message = str_replace(' ', '\s', $message);
 
-        return $this->execute("gm msg={$message}");
+        return $this->execAndParse("gm msg={$message}")['message'];
     }
 
     /**

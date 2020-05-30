@@ -6,6 +6,7 @@ GRcon is a PHP library for manage game servers and services using RCON protocol.
 * GoldSource (CS 1.6, Half-Life game servers, etc.)
 * Minecraft
 * TeamSpeak 3
+* SAMP (GTA San-Andreas Multiplayer)
 
 ### Comming soon
 
