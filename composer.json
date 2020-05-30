@@ -1,7 +1,10 @@
 {
     "name": "knik/g-rcon",
-    "description": "RCON Library for game servers management",
     "type": "library",
+    "description": "RCON Library for game servers management",
+    "keywords": [
+        "rcon", "counter-strike", "half-life", "teamspeak"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -22,7 +25,8 @@
     "require": {
         "php": ">=7.2",
         "ext-openssl": "*",
-        "ext-sockets": "*"
+        "ext-sockets": "*",
+        "phpseclib/phpseclib": "~2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5",
