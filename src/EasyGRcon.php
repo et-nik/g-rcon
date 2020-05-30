@@ -29,6 +29,7 @@ class EasyGRcon extends GRconAbstract
         // TeamSpeak 3
         'ts3'           => Teamspeak3Adapter::class,
         'teamspeak3'    => Teamspeak3Adapter::class,
+        'teamspeak'     => Teamspeak3Adapter::class,
     ];
 
     /**
