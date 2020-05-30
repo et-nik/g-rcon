@@ -7,6 +7,7 @@ use Knik\GRcon\Interfaces\ConfigurableAdapterInterface;
 use Knik\GRcon\Interfaces\ProtocolAdapterInterface;
 use Knik\GRcon\Protocols\GoldSourceAdapter;
 use Knik\GRcon\Protocols\SourceAdapter;
+use Knik\GRcon\Protocols\Teamspeak3Adapter;
 
 class EasyGRcon extends GRconAbstract
 {
@@ -24,6 +25,10 @@ class EasyGRcon extends GRconAbstract
         'cstrike'       => GoldSourceAdapter::class, // Counter-Strike 1.6
         'valve'         => GoldSourceAdapter::class, // Half-Life
         'halflife'      => GoldSourceAdapter::class, // Half-Life
+
+        // TeamSpeak 3
+        'ts3'           => Teamspeak3Adapter::class,
+        'teamspeak3'    => Teamspeak3Adapter::class,
     ];
 
     /**

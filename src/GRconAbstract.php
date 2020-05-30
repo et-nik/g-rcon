@@ -3,6 +3,7 @@
 namespace Knik\GRcon;
 
 use Knik\GRcon\Exceptions\PlayersManageNotSupportedExceptions;
+use Knik\GRcon\Interfaces\ChatInterface;
 use Knik\GRcon\Interfaces\PlayersManageInterface;
 use Knik\GRcon\Interfaces\ProtocolAdapterInterface;
 
@@ -38,6 +39,14 @@ abstract class GRconAbstract
     public function isPlayersManageSupported(): bool
     {
         return $this->adapter instanceof PlayersManageInterface;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isChatSupported(): bool
+    {
+        return $this->adapter instanceof ChatInterface;
     }
 
     /**
@@ -97,6 +106,25 @@ abstract class GRconAbstract
         }
 
         return $this->adapter->ban($playerId, $reason, $time);
+    }
+
+    /**
+     * @param string $message
+     * @return string
+     * @throws PlayersManageNotSupportedExceptions
+     */
+    public function globalMessage(string $message): string
+    {
+        if (!$this->isChatSupported()) {
+            throw new PlayersManageNotSupportedExceptions;
+        }
+
+        if (! $this->isConnected) {
+            $this->adapter->connect();
+            $this->isConnected = true;
+        }
+
+        return $this->adapter->globalMessage($message);
     }
 
     public function __destruct()

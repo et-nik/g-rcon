@@ -7,6 +7,7 @@ interface ChatInterface
     /**
      * Send message to server
      * @param string $message
+     * @return string
      */
-    public function sendMessage(string $message): void;
+    public function globalMessage(string $message): string;
 }

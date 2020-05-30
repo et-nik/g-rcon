@@ -200,8 +200,11 @@ class GoldSourceAdapter implements ProtocolAdapterInterface, PlayersManageInterf
             }
 
             $players[] = [
+                // Common
                 'id'        => $matches['userid'][$i],
                 'name'      => $matches['name'][$i],
+
+                // GoldSource
                 'steamid'   => $matches['uniqueid'][$i],
                 'score'     => (int)$matches['frag'][$i],
                 'ping'      => (int)$matches['ping'][$i],
