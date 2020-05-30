@@ -274,7 +274,7 @@ class SampAdapter implements
 
         $lines = [];
         foreach (explode($this->getHeader(), $buffer) as $line) {
-            $lines[] = substr($line, 2);
+            $lines[] = substr($line, 3);
         }
 
         array_shift($lines);
