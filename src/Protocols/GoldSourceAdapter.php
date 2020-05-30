@@ -203,13 +203,13 @@ class GoldSourceAdapter implements ProtocolAdapterInterface, PlayersManageInterf
                 // Common
                 'id'        => $matches['userid'][$i],
                 'name'      => $matches['name'][$i],
+                'ping'      => (int)$matches['ping'][$i],
+                'score'     => (int)$matches['frag'][$i],
+                'loss'      => (int)$matches['loss'][$i],
+                'ip'        => $ip,
 
                 // GoldSource
                 'steamid'   => $matches['uniqueid'][$i],
-                'score'     => (int)$matches['frag'][$i],
-                'ping'      => (int)$matches['ping'][$i],
-                'loss'      => (int)$matches['loss'][$i],
-                'ip'        => $ip,
                 'time'      => $matches['time'][$i],
             ];
         }

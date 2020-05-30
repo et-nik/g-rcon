@@ -6,12 +6,13 @@ use Knik\GRcon\Exceptions\ProtocolNotSupportedException;
 use Knik\GRcon\Interfaces\ConfigurableAdapterInterface;
 use Knik\GRcon\Interfaces\ProtocolAdapterInterface;
 use Knik\GRcon\Protocols\GoldSourceAdapter;
+use Knik\GRcon\Protocols\SampAdapter;
 use Knik\GRcon\Protocols\SourceAdapter;
 use Knik\GRcon\Protocols\Teamspeak3Adapter;
 
 class EasyGRcon extends GRconAbstract
 {
-    protected $protocolMap = [
+    protected static $protocolMap = [
         // Source rcon protocol games
         'source'        => SourceAdapter::class,
         'csgo'          => SourceAdapter::class,  // Counter-Strike Global Offensive
@@ -30,6 +31,8 @@ class EasyGRcon extends GRconAbstract
         'ts3'           => Teamspeak3Adapter::class,
         'teamspeak3'    => Teamspeak3Adapter::class,
         'teamspeak'     => Teamspeak3Adapter::class,
+
+        'samp'          => SampAdapter::class // San Andreas Multi Player
     ];
 
     /**
@@ -44,6 +47,17 @@ class EasyGRcon extends GRconAbstract
         if (!empty($protocolName)) {
             $this->setProtocol($protocolName, $options);
         }
+    }
+
+    /**
+     * Check game supported by code
+     *
+     * @param string $code
+     * @return bool
+     */
+    public static function isCodeSupported(string $code): bool
+    {
+        return array_key_exists($code, static::$protocolMap);
     }
 
     /**
@@ -65,11 +79,11 @@ class EasyGRcon extends GRconAbstract
      */
     protected function getAdapterInstance(string $protocolName, array $options = null): ProtocolAdapterInterface
     {
-        if (!array_key_exists($protocolName, $this->protocolMap)) {
+        if (!array_key_exists($protocolName, static::$protocolMap)) {
             throw new ProtocolNotSupportedException;
         }
 
-        $adapterClass = $this->protocolMap[$protocolName];
+        $adapterClass = static::$protocolMap[$protocolName];
 
         if ( ! in_array(ConfigurableAdapterInterface::class, class_implements($adapterClass))) {
             throw new ProtocolNotSupportedException;

@@ -3,7 +3,7 @@
     "type": "library",
     "description": "RCON Library for game servers management",
     "keywords": [
-        "rcon", "counter-strike", "half-life", "teamspeak"
+        "rcon", "counter-strike", "half-life", "teamspeak", "samp"
     ],
     "license": "MIT",
     "authors": [
