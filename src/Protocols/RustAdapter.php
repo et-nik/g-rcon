@@ -3,14 +3,16 @@
 namespace Knik\GRcon\Protocols;
 
 use Knik\GRcon\Exceptions\ConnectionException;
+use Knik\GRcon\Interfaces\ChatInterface;
 use Knik\GRcon\Interfaces\ConfigurableAdapterInterface;
 use Knik\GRcon\Interfaces\PlayersManageInterface;
 use Knik\GRcon\Interfaces\ProtocolAdapterInterface;
 
-class SourceAdapter implements
+class RustAdapter implements
     ProtocolAdapterInterface,
     ConfigurableAdapterInterface,
-    PlayersManageInterface
+    PlayersManageInterface,
+    ChatInterface
 {
     /** @var SourceProtocol */
     private $client;
@@ -58,27 +60,6 @@ class SourceAdapter implements
     }
 
     /**
-     * @param $playerId
-     * @param string $reason
-     * @return mixed|void
-     */
-    public function kick($playerId, string $reason = '')
-    {
-        $this->execute("kickid {$playerId}");
-    }
-
-    /**
-     * @param $playerId
-     * @param string $reason
-     * @param int $time
-     * @return mixed|void
-     */
-    public function ban($playerId, string $reason = '', int $time = 0)
-    {
-        $this->execute("banid {$time} {$playerId} kick");
-    }
-
-    /**
      * @return array
      */
     public function getPlayers(): array
@@ -90,17 +71,12 @@ class SourceAdapter implements
         }
 
         $count = preg_match_all('/^'
-            . '#\s*(?<userid>\d*)\s*'
-            . '\d*\s*'
-            . '"(?<name>.*?)"\s*'
-            . '\[?(?<uniqueid>[a-zA-Z0-9_:]*)\]?\s*'
-            . '(?<connected>[0-9:]*)?\s*'
-            . '(?<ping>\d*)?\s*'
-            . '(?<loss>\d*)?\s*'
-            . '(?<state>[a-zA-Z0-9_:]*)\s*'
-            . '(?<adr>[0-9.]*:\d*)?$'
+            . '\s*(?<id>\d*)\s*'
+            . '\"(?<name>.*?)\"\s*'
+            . '(?<ping>\d*)\s*'
+            . '(?<connected>\d*s)\s*'
+            . '(?<addr>[0-9\.]*)$'
             . '/mi',
-
             $status,
             $matches
         );
@@ -112,27 +88,55 @@ class SourceAdapter implements
         $players = [];
 
         for ($i = 0; $i < $count; $i++) {
-            if ($matches['adr'][$i] != 0) {
-                $ip = explode(':', $matches['adr'][$i])[0];
+            if ($matches['addr'][$i] != 0) {
+                $ip = explode(':', $matches['addr'][$i])[0];
             } else {
                 $ip = '127.0.0.1';
             }
 
             $players[] = [
                 // Common
-                'id'        => $matches['userid'][$i],
+                'id'        => $matches['id'][$i],
                 'name'      => $matches['name'][$i],
                 'ping'      => $matches['ping'][$i],
-                'loss'      => $matches['loss'][$i],
                 'ip'        => $ip,
 
-                // Source
-                'steamid'   => $matches['uniqueid'][$i],
+                // Rust
                 'time'      => $matches['connected'][$i],
-                'state'     => $matches['state'][$i],
+                'steamid'   => $matches['id'][$i],
             ];
         }
 
         return $players;
+    }
+
+    /**
+     * @param $playerId
+     * @param string $reason
+     * @return mixed|void
+     */
+    public function kick($playerId, string $reason = '')
+    {
+        $this->execute("kick {$playerId} \"{$reason}\"");
+    }
+
+    /**
+     * @param $playerId
+     * @param string $reason
+     * @param int $time
+     * @return mixed|void
+     */
+    public function ban($playerId, string $reason = '', int $time = 0)
+    {
+        $this->execute("banid {$playerId} \"{$reason}\"");
+    }
+
+    /**
+     * @param string $message
+     * @return string
+     */
+    public function globalMessage(string $message): string
+    {
+        return $this->execute("say \"{$message}\"");
     }
 }

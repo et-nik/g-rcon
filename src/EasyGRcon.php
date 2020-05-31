@@ -5,7 +5,9 @@ namespace Knik\GRcon;
 use Knik\GRcon\Exceptions\ProtocolNotSupportedException;
 use Knik\GRcon\Interfaces\ConfigurableAdapterInterface;
 use Knik\GRcon\Interfaces\ProtocolAdapterInterface;
+use Knik\GRcon\Protocols\CsgoAdapter;
 use Knik\GRcon\Protocols\GoldSourceAdapter;
+use Knik\GRcon\Protocols\MinecraftAdapter;
 use Knik\GRcon\Protocols\SampAdapter;
 use Knik\GRcon\Protocols\SourceAdapter;
 use Knik\GRcon\Protocols\Teamspeak3Adapter;
@@ -15,17 +17,19 @@ class EasyGRcon extends GRconAbstract
     protected static $protocolMap = [
         // Source rcon protocol games
         'source'        => SourceAdapter::class,
-        'csgo'          => SourceAdapter::class,  // Counter-Strike Global Offensive
-        'cssv34'        => SourceAdapter::class,  // Counter-Strike Source v34
-        'cssource'      => SourceAdapter::class,  // Counter-Strike Source
-        'tf'            => SourceAdapter::class,  // Team Fortress 2
-        'minecraft'     => SourceAdapter::class,  // Minecraft
+        'csgo'          => CsgoAdapter::class,          // Counter-Strike Global Offensive
+        'cssv34'        => SourceAdapter::class,        // Counter-Strike Source v34
+        'cssource'      => SourceAdapter::class,        // Counter-Strike Source
+        'tf'            => SourceAdapter::class,        // Team Fortress 2
+        'tf2'           => SourceAdapter::class,        // Team Fortress 2
+        'teamfortress2' => SourceAdapter::class,        // Team Fortress 2
+        'minecraft'     => MinecraftAdapter::class,     // Minecraft
 
         // GoldSource RCON protocol games
         'goldsource'    => GoldSourceAdapter::class,
-        'cstrike'       => GoldSourceAdapter::class, // Counter-Strike 1.6
-        'valve'         => GoldSourceAdapter::class, // Half-Life
-        'halflife'      => GoldSourceAdapter::class, // Half-Life
+        'cstrike'       => GoldSourceAdapter::class,    // Counter-Strike 1.6
+        'valve'         => GoldSourceAdapter::class,    // Half-Life
+        'halflife'      => GoldSourceAdapter::class,    // Half-Life
 
         // TeamSpeak 3
         'ts3'           => Teamspeak3Adapter::class,
