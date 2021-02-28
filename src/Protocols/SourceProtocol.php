@@ -3,6 +3,8 @@
 namespace Knik\GRcon\Protocols;
 
 use Knik\GRcon\Exceptions\ConnectionException;
+use Knik\GRcon\Interfaces\SocketClientInterface;
+use Knik\GRcon\Internal\SocketClientFactory;
 
 /**
  * Class SourceProtocol
@@ -13,9 +15,9 @@ class SourceProtocol
 {
     private const SERVERDATA_EXECCOMMAND = 2;
     private const SERVERDATA_AUTH = 3;
-
+    
     /**
-     * @var resource|false
+     * @var SocketClientInterface|null
      */
     private $connection;
 
@@ -63,7 +65,7 @@ class SourceProtocol
      * @param array $config
      * @return $this
      */
-    public function setConfig(array $config)
+    public function setConfig(array $config): SourceProtocol
     {
         foreach ($this->configurable as $optionName) {
             if ( ! isset($config[$optionName])) {
@@ -78,45 +80,42 @@ class SourceProtocol
         return $this;
     }
 
+    public function setConnection(SocketClientInterface $connection): void
+    {
+        $this->connection = $connection;
+    }
+
     public function connect(): void
     {
-        set_error_handler(function ($errSeverity, $errMsg) {
-            throw new ConnectionException($errMsg);
-        });
-
-        $this->connection = fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
-
-        restore_error_handler();
-
-        if ( ! $this->connection) {
-            throw new ConnectionException("Unable to connect");
-        }
-
-        stream_set_blocking($this->connection, 0);
-        stream_set_timeout($this->connection, 5);
+        $this->connection = SocketClientFactory::create("tcp://{$this->host}:{$this->port}", $this->timeout);
+        $this->connection->setOption(SOL_SOCKET, SO_RCVTIMEO, ['sec' => 0, 'usec' => 100000]);
         $this->auth();
     }
 
     public function disconnect(): void
     {
-        if ($this->connection) {
-            fclose($this->connection);
-        }
+        $this->connection->close();
     }
 
     public function execute($command): string
     {
-        $this->write(self::SERVERDATA_EXECCOMMAND, $command,'');
+        $this->write(self::SERVERDATA_EXECCOMMAND, $command);
 
         $response = $this->read();
 
-        //ATM: Source servers don't return the request id, but if they fix this the code below should read as
-        if (isset($response[$this->packetId]['S1'])) {
-            return $response[$this->packetId]['S1'];
+        if (empty($response)) {
+            return '';
         }
-        else {
-            return $response[0]['S1'];
+
+        if (isset($response[$this->packetId]['body'])) {
+            return trim($response[$this->packetId]['body'], "\x00");
         }
+
+        if (isset($response[0]['body'])) {
+            return $response[0]['body'];
+        }
+
+        return '';
     }
 
     private function auth()
@@ -130,59 +129,49 @@ class SourceProtocol
         // Real response (id: -1 = failure)
         $ret = $this->packetRead();
 
-        if (false == $ret) {
+        if (false === $ret) {
             return false;
         }
 
-        if (@$ret[1]['ID'] == -1) {
+        if (!isset($ret[1]['ID'])) {
             return false;
-        } else {
-            return true;
         }
+
+        if ($ret[1]['ID'] === -1) {
+            return false;
+        }
+
+        return true;
     }
 
-    private function write($cmd, $s1 = '', $s2 = '')
+    private function write($type, $command = '')
     {
-        if (!is_resource($this->connection)) {
-            return 0;
-        }
-
-        // Get and increment the packet id
         $id = ++$this->packetId;
 
-        // Put our packet together
-        $data = pack("VV", $id, $cmd) . $s1 . chr(0) . $s2 . chr(0);
-
-        // Prefix the packet size
+        $data = pack("VV", $id, $type) . $command . "\x00\x00";
         $data = pack("V", strlen($data)) . $data;
 
-        // Send packet
-        @fwrite($this->connection, $data, strlen($data));
-        sleep(1);
+        $this->connection->write($data);
+        usleep(100);
 
-        // In case we want it later we'll return the packet id
         return $id;
     }
 
     private function packetRead()
     {
-        //Declare the return array
-        $retarray = array();
+        $retarray = [];
 
-        //Fetch the packet size
-        while ($size = @fread($this->connection,4)) {
+        while ($size = $this->connection->read(4)) {
 
-            $size = unpack('V1Size',$size);
-            //Work around valve breaking the protocol
+            $size = unpack('V1size', $size);
 
-            if ($size["Size"] > 4096) {
-                //pad with 8 nulls
-                $packet = "\x00\x00\x00\x00\x00\x00\x00\x00".fread($this->connection, 4096);
+            if ($size['size'] > 4096) {
+                $packet = $this->connection->read(4096);
             } else {
-                //Read the packet back
-                $packet = @fread($this->connection,$size["Size"]);
+                $packet = $this->connection->read($size['size']);
             }
-            array_push($retarray, unpack("V1ID/V1Response/a*S1/a*S2",$packet));
+
+            $retarray[] = unpack("V1ID/V1type/a*body", $packet);
         }
 
         return $retarray;
@@ -191,21 +180,15 @@ class SourceProtocol
     private function read()
     {
         $packets = $this->packetRead();
-        $ret = NULL;
+        $result = [];
 
         foreach($packets as $pack) {
-            if (isset($ret[$pack['ID']])) {
-                $ret[$pack['ID']]['S1'] .= $pack['S1'];
-                $ret[$pack['ID']]['S2'] .= $pack['S1'];
-            } else {
-                $ret[$pack['ID']] = array(
-                    'Response' => $pack['Response'],
-                    'S1' => $pack['S1'],
-                    'S2' =>	$pack['S2'],
-                );
-            }
+            $result[$pack['ID']] = [
+                'type'      => $pack['type'],
+                'body'      => $pack['body'],
+            ];
         }
 
-        return $ret;
+        return $result;
     }
 }

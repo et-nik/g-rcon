@@ -2,9 +2,7 @@
 
 namespace Knik\GRcon\Protocols;
 
-use Knik\GRcon\Interfaces\PlayersManageInterface;
-
-class CsgoAdapter extends SourceAdapter implements PlayersManageInterface
+class CsgoAdapter extends SourceAdapter
 {
     public function getPlayers(): array
     {

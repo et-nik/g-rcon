@@ -5,9 +5,7 @@ namespace Knik\GRcon\Protocols;
 use Knik\GRcon\Interfaces\ChatInterface;
 use Knik\GRcon\Interfaces\PlayersManageInterface;
 
-class MinecraftAdapter extends SourceAdapter implements
-    PlayersManageInterface,
-    ChatInterface
+class MinecraftAdapter extends SourceAdapter implements ChatInterface
 {
     /**
      * @return array

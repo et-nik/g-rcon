@@ -5,10 +5,13 @@ include "../vendor/autoload.php";
 use Knik\GRcon\EasyGRcon;
 
 $rcon = new EasyGRcon('csgo', [
-    'host'          => '127.0.0.1',
-    'port'          => 27019,
-    'password'      => 'whIBOkRBR8'
+    'host'          => '95.213.175.171',
+    'port'          => 27015,
+    'password'      => '123'
 ]);
 
 // Get Client List
-print_r($rcon->getPlayers());
+//print_r($rcon->getPlayers());
+
+
+print_r($rcon->execute("status"));

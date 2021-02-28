@@ -3,7 +3,6 @@
 namespace Knik\GRcon\Tests;
 
 use Knik\GRcon\Exceptions\PlayersManageNotSupportedExceptions;
-use Knik\GRcon\GRconAbstract;
 use Knik\GRcon\Interfaces\PlayersManageInterface;
 use Knik\GRcon\Interfaces\ProtocolAdapterInterface;
 use PHPUnit\Framework\MockObject\MockObject;

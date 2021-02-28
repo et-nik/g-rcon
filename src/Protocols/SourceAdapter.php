@@ -6,6 +6,7 @@ use Knik\GRcon\Exceptions\ConnectionException;
 use Knik\GRcon\Interfaces\ConfigurableAdapterInterface;
 use Knik\GRcon\Interfaces\PlayersManageInterface;
 use Knik\GRcon\Interfaces\ProtocolAdapterInterface;
+use Knik\GRcon\Interfaces\SocketClientInterface;
 
 class SourceAdapter implements
     ProtocolAdapterInterface,
@@ -21,7 +22,7 @@ class SourceAdapter implements
      */
     public function __construct(array $config)
     {
-        $this->client = new SourceProtocol;
+        $this->client = new SourceProtocol();
         $this->setConfig($config);
     }
 
@@ -41,6 +42,11 @@ class SourceAdapter implements
     public function connect(): void
     {
         $this->client->connect();
+    }
+
+    public function setConnection(SocketClientInterface $connection): void
+    {
+        $this->client->setConnection($connection);
     }
 
     /**
